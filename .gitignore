@@ -1,0 +1,16 @@
+# Dependencies & Build
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Sensitive credentials
+*.key
+*.pem
+*.token
+.env
+.env.local
+
+# Temp files
+*.tmp
+*.bak
