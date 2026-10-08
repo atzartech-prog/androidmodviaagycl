@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Android Modding & ADB Orchestration with Google Antigravity</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20width=%2232%22%20height=%2232%22><text y=%2226%22 font-size=%2226%22>🤖</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">🤖</div>
+          <div class="logo-text">
+            <h2>AGY AndroidLab</h2>
+            <span class="badge">v2.4 Orchestrator</span>
+          </div>
+        </div>
+        <button class="btn-close-sidebar" id="btnCloseSidebar" aria-label="Close Sidebar">&times;</button>
+      </div>
+
+      <div class="sidebar-search">
+        <input type="text" id="sidebarSearchInput" placeholder="Cari perintah atau modul..." autocomplete="off">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-group-title">NAVIGASI MODUL</div>
+        <a href="#overview" class="nav-item active" data-target="overview">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Ikhtisar & Arsitektur</span>
+        </a>
+        <a href="#prerequisites" class="nav-item" data-target="prerequisites">
+          <span class="nav-label">⚡ Setup & Prerequisites</span>
+        </a>
+        <a href="#module-install" class="nav-item" data-target="module-install">
+          <span class="nav-label">📦 1. Instalasi & Debloat APK</span>
+        </a>
+        <a href="#module-troubleshoot" class="nav-item" data-target="module-troubleshoot">
+          <span class="nav-label">🛠️ 2. Rescue & Troubleshooting</span>
+        </a>
+        <a href="#module-termux" class="nav-item" data-target="module-termux">
+          <span class="nav-label">💻 3. Custom Termux via ADB</span>
+        </a>
+        <a href="#module-orchestration" class="nav-item" data-target="module-orchestration">
+          <span class="nav-label">🤖 4. Orkestrasi Antigravity</span>
+        </a>
+
+        <div class="nav-group-title">TOOL INTERAKTIF</div>
+        <a href="#command-generator" class="nav-item" data-target="command-generator">
+          <span class="nav-label">🎛️ ADB & AGY Generator</span>
+        </a>
+        <a href="#agent-simulator" class="nav-item" data-target="agent-simulator">
+          <span class="nav-label">📟 Terminal AGY Simulator</span>
+        </a>
+        <a href="#cheatsheet" class="nav-item" data-target="cheatsheet">
+          <span class="nav-label">📑 Quick Cheatsheet</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="device-status-widget">
+          <div class="status-indicator online"></div>
+          <div class="status-details">
+            <span class="status-title">ADB State: Emulated</span>
+            <span class="status-sub">USB Debugging Ready</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Navbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn-toggle-sidebar" id="btnToggleSidebar" aria-label="Toggle Menu">
+            <span>☰</span>
+          </button>
+          <div class="breadcrumb">
+            <span id="currentSectionTitle">Ikhtisar & Arsitektur</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button class="theme-toggle-btn" id="themeToggleBtn" title="Ganti Tema">
+            <span class="theme-icon" id="themeIcon">🌙</span>
+          </button>
+          <a href="https://github.com/atzartech-prog/androidmodviaagycl" target="_blank" class="btn-github">
+            <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+            <span>GitHub Repository</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="content-body">
+        
+        <!-- SECTION: OVERVIEW -->
+        <section id="overview" class="content-section active">
+          <div class="hero-banner">
+            <div class="hero-text">
+              <div class="tag-pill">🔥 Otomasi Next-Gen Android</div>
+              <h1>Kuasai Otak-Atik Android via USB ADB & AI Agent</h1>
+              <p>
+                Panduan komprehensif mengelola, memperbaiki, mengkustomisasi Termux, dan memasang aplikasi di perangkat Android menggunakan kekuatan <strong>Android Debug Bridge (ADB)</strong> yang diorkestrasi secara cerdas oleh <strong>Google Antigravity CLI Agent</strong>.
+              </p>
+              <div class="hero-actions">
+                <a href="#command-generator" class="btn btn-primary" data-target="command-generator">Coba Command Generator</a>
+                <a href="#prerequisites" class="btn btn-secondary" data-target="prerequisites">Mulai Belajar</a>
+              </div>
+            </div>
+            <div class="hero-badge-card">
+              <div class="card-glass">
+                <div class="stat-row">
+                  <span class="stat-number">4</span>
+                  <span class="stat-label">Modul Tingkat Lanjut</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-number">50+</span>
+                  <span class="stat-label">Perintah ADB Teruji</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-number">100%</span>
+                  <span class="stat-label">Agentic AI Automated</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Architecture Diagram -->
+          <div class="card">
+            <div class="card-header">
+              <h3>📐 Arsitektur Orkestrasi: Human &rarr; Antigravity Agent &rarr; ADB &rarr; Android Device</h3>
+            </div>
+            <div class="card-body">
+              <div class="architecture-flow">
+                <div class="flow-step">
+                  <div class="flow-icon">👤</div>
+                  <h4>Pengguna / Pengembang</h4>
+                  <p>Memberikan instruksi bahasa alami (prompt), contoh: <em>"Perbaiki bootloop akibat update Termux & pasang SSH server"</em>.</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step highlight">
+                  <div class="flow-icon">🧠</div>
+                  <h4>Google Antigravity (AGY)</h4>
+                  <p>Menganalisis skenario, memilih tools ADB yang tepat, menyusun urutan aksi (planning & tool execution).</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step">
+                  <div class="flow-icon">🔌</div>
+                  <h4>USB ADB Interface</h4>
+                  <p>Menjembatani PC dengan daemon Android (`adbd`), menjalankan perintah shell sistem, file transfer, dan recovery.</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step">
+                  <div class="flow-icon">📱</div>
+                  <h4>Android & Termux</h4>
+                  <p>Mengeksekusi perintah di level OS, mengisolasi error, menginjeksi konfigurasi Termux, dan melapor balik.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Navigation Cards -->
+          <div class="module-grid">
+            <div class="module-card" data-target="prerequisites">
+              <div class="module-card-icon">⚡</div>
+              <h3>Setup & Persiapan</h3>
+              <p>Instalasi Android Platform Tools, aktivasi USB Debugging, otorisasi RSA key, dan instalasi AGY CLI.</p>
+              <span class="card-link">Jelajahi &rarr;</span>
+            </div>
+            <div class="module-card" data-target="module-install">
+              <div class="module-card-icon">📦</div>
+              <h3>Instalasi & Debloat</h3>
+              <p>Sideloading APK, penanganan Split-APK (APKS/XAPK), perizinan runtime tanpa popup, dan debloat bloatware.</p>
+              <span class="card-link">Jelajahi &rarr;</span>
+            </div>
+            <div class="module-card" data-target="module-troubleshoot">
+              <div class="module-card-icon">🛠️</div>
+              <h3>Troubleshoot & Rescue</h3>
+              <p>Mendiagnosa crash via Logcat real-time, keluar dari bootloop, safe-mode reboot, dan fastboot unbrick.</p>
+              <span class="card-link">Jelajahi &rarr;</span>
+            </div>
+            <div class="module-card" data-target="module-termux">
+              <div class="module-card-icon">💻</div>
+              <h3>Supercharge Termux</h3>
+              <p>Bypass batasan, setup storage, pasang proot-distro Linux, konfigurasi headless SSH via injeksi ADB.</p>
+              <span class="card-link">Jelajahi &rarr;</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: PREREQUISITES -->
+        <section id="prerequisites" class="content-section">
+          <div class="section-heading">
+            <h2>⚡ Persiapan & Setup Lingkungan</h2>
+            <p>Fondasi utama sebelum menjalankan otomatisasi ADB dan orkestrasi AI Agent.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>1. Konfigurasi Device Android</h3>
+            </div>
+            <div class="card-body">
+              <ol class="step-list">
+                <li>
+                  <strong>Buka Pengaturan Developer Options:</strong>
+                  Masuk ke <em>Pengaturan &rarr; Tentang Ponsel (About Phone)</em>. Ketuk <strong>Nomor Versi (Build Number)</strong> sebanyak 7 kali berturut-turut hingga muncul notifikasi <em>"You are now a developer"</em>.
+                </li>
+                <li>
+                  <strong>Aktifkan USB Debugging:</strong>
+                  Masuk ke <em>Sistem &rarr; Opsi Pengembang (Developer Options)</em>, aktifkan <strong>USB Debugging</strong>.
+                  <div class="callout warning">
+                    <strong>Penting untuk Xiaomi/MIUI/HyperOS:</strong> Wajib juga aktifkan <em>"Install via USB"</em> dan <em>"USB Debugging (Security settings)"</em> agar ADB dapat mengontrol perizinan dan memasang paket.
+                  </div>
+                </li>
+                <li>
+                  <strong>Hubungkan ke PC via Kabel Data Berkualitas:</strong>
+                  Gunakan port USB 2.0 atau USB 3.0 native (hindari hub USB pasif jika koneksi sering terputus).
+                </li>
+                <li>
+                  <strong>Otorisasi RSA Fingerprint:</strong>
+                  Di layar ponsel akan muncul dialog <em>"Allow USB debugging?"</em>. Centang <strong>"Always allow from this computer"</strong> lalu tekan <strong>OK</strong>.
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>2. Verifikasi Instalasi Platform-Tools (ADB & Fastboot)</h3>
+            </div>
+            <div class="card-body">
+              <p>Jalankan perintah berikut di PowerShell atau Terminal komputer Anda untuk memverifikasi kesiapan driver:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>PowerShell / Bash</span>
+                  <button class="btn-copy" data-code="adb devices -l">Salin</button>
+                </div>
+                <pre><code>adb devices -l</code></pre>
+              </div>
+              <p>Hasil yang diharapkan jika terhubung dengan benar:</p>
+              <div class="code-box output">
+                <pre><code>List of devices attached
+3a29b4e7    device product:redfin model:Pixel_5 device:redfin transport_id:1</code></pre>
+              </div>
+              <div class="callout info">
+                Jika status perangkat tertulis <code>unauthorized</code>, buka layar ponsel Anda dan izinkan RSA prompt. Jika tertulis <code>offline</code>, jalankan <code>adb kill-server && adb start-server</code>.
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>3. Menghubungkan Google Antigravity CLI (AGY)</h3>
+            </div>
+            <div class="card-body">
+              <p>Google Antigravity CLI bertindak sebagai agen otonom di PC Anda yang dapat memanggil perintah ADB secara mandiri berdasarkan instruksi tingkat tinggi:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Terminal</span>
+                  <button class="btn-copy" data-code="agy --version">Salin</button>
+                </div>
+                <pre><code>agy --version</code></pre>
+              </div>
+              <p>Dengan integrasi tool calling atau shell execution di Antigravity, agen dapat memeriksa status baterai, membaca logcat, memvalidasi paket, dan mengeksekusi script secara langsung ke device tanpa intervensi manual berulang.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: MODULE 1 (INSTALL & DEBLOAT) -->
+        <section id="module-install" class="content-section">
+          <div class="section-heading">
+            <h2>📦 Modul 1: Manajemen Aplikasi & Debloat Sistem</h2>
+            <p>Teknik sideloading mutakhir, penanganan Split APK, dan pembersihan bloatware tanpa root.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Instalasi APK Standar & Perizinan Otomatis</h3>
+            </div>
+            <div class="card-body">
+              <p>Gunakan flag <code>-r</code> (reinstall/pertahankan data), <code>-d</code> (allow downgrade), dan <code>-g</code> (grant all runtime permissions):</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Bash / ADB</span>
+                  <button class="btn-copy" data-code="adb install -r -d -g nama_aplikasi.apk">Salin</button>
+                </div>
+                <pre><code>adb install -r -d -g nama_aplikasi.apk</code></pre>
+              </div>
+              <p>Dengan flag <code>-g</code>, aplikasi yang baru dipasang langsung memiliki izin kamera, lokasi, atau storage tanpa perlu popup perizinan di layar.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Sideloading Split APKs (APKS, XAPK, App Bundles)</h3>
+            </div>
+            <div class="card-body">
+              <p>Banyak aplikasi modern didistribusikan dalam format App Bundle (terpecah menjadi base.apk dan split_config.*.apk). ADB mendukung instalasi multi-file secara atomic:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>ADB Multi-Install</span>
+                  <button class="btn-copy" data-code="adb install-multiple -r -p base.apk split_config.arm64_v8a.apk split_config.id.apk split_config.xxhdpi.apk">Salin</button>
+                </div>
+                <pre><code># Ekstrak file .xapk / .apks menjadi zip terlebih dahulu, lalu:
+adb install-multiple -r base.apk split_config.arm64_v8a.apk split_config.id.apk split_config.xxhdpi.apk</code></pre>
+              </div>
+              <div class="callout tip">
+                <strong>Orkestrasi Antigravity:</strong> Berikan instruksi ke AGY: <em>"Ekstrak arsip MyApp.apks di direktori Downloads dan jalankan adb install-multiple untuk semua file .apk di dalamnya"</em>. AGY akan menghandle unpacking dan instalasi otomatis.
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Pembersihan Bloatware Aman (Tanpa Root)</h3>
+            </div>
+            <div class="card-body">
+              <p>Hapus bloatware bawaan pabrik untuk User 0 (pengguna aktif) tanpa merusak partisi sistem (systemless uninstall):</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Uninstall Bloatware</span>
+                  <button class="btn-copy" data-code="adb shell pm uninstall -k --user 0 com.facebook.katana">Salin</button>
+                </div>
+                <pre><code># Menghapus aplikasi dari pengguna saat ini:
+adb shell pm uninstall -k --user 0 com.facebook.katana
+
+# Menonaktifkan aplikasi tanpa menghapus:
+adb shell pm disable-user --user 0 com.google.android.apps.tachyon
+
+# Mengembalikan aplikasi yang terlanjur di-uninstall:
+adb shell cmd package install-existing com.facebook.katana</code></pre>
+              </div>
+              <p>Daftar package bawaan dapat diinspeksi dengan mudah:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>List Packages</span>
+                  <button class="btn-copy" data-code="adb shell pm list packages -f | grep facebook">Salin</button>
+                </div>
+                <pre><code>adb shell pm list packages -3          # Hanya aplikasi pihak ketiga (User-installed)
+adb shell pm list packages -s          # Hanya aplikasi sistem
+adb shell pm list packages -d          # Aplikasi yang dinonaktifkan</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: MODULE 2 (TROUBLESHOOT & RESCUE) -->
+        <section id="module-troubleshoot" class="content-section">
+          <div class="section-heading">
+            <h2>🛠️ Modul 2: Troubleshooting, Rescue & Pemulihan Sistem</h2>
+            <p>Metode sistematis menyelamatkan perangkat yang mengalami bootloop, crash berulang, atau soft-brick.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>1. Mengatasi Bootloop Akibat Aplikasi / Modul Rusak</h3>
+            </div>
+            <div class="card-body">
+              <p>Jika ponsel macet di logo booting namun masih terdeteksi oleh ADB (USB Debugging aktif):</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Reboot ke Safe Mode</span>
+                  <button class="btn-copy" data-code="adb reboot safe-mode">Salin</button>
+                </div>
+                <pre><code># Memaksa reboot ke mode aman (menonaktifkan seluruh aplikasi pihak ketiga)
+adb reboot safe-mode</code></pre>
+              </div>
+              <p>Setelah masuk ke sistem atau jika tahu aplikasi penyebab crash, bersihkan datanya atau uninstall secara paksa:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Clear Cache & Data via ADB</span>
+                  <button class="btn-copy" data-code="adb shell pm clear com.aplikasi.rusak">Salin</button>
+                </div>
+                <pre><code>adb shell pm clear com.aplikasi.rusak
+adb shell pm uninstall com.aplikasi.rusak</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>2. Analisis Real-Time Crash Log (Logcat) dengan Antigravity</h3>
+            </div>
+            <div class="card-body">
+              <p>Logcat merekam seluruh log sistem Android secara terperinci. Filter hanya bagian error atau fatal exception:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Crash Log Dump</span>
+                  <button class="btn-copy" data-code="adb logcat -b crash -v threadtime -d > crash_dump.txt">Salin</button>
+                </div>
+                <pre><code># Mengambil log crash terakhir:
+adb logcat -b crash -v threadtime -d > crash_dump.txt
+
+# Memantau error secara live:
+adb logcat *:E</code></pre>
+              </div>
+              <div class="callout tip">
+                <strong>AI Prompt untuk Antigravity:</strong>
+                <em>"Jalankan `adb logcat -b crash -d`, parsing stacktrace-nya, temukan package name yang memicu `NullPointerException` atau `Fatal Exception: main`, lalu rekomendasikan perintah shell untuk memperbaikinya."</em>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>3. Fastboot Rescue & Partition Flashing</h3>
+            </div>
+            <div class="card-body">
+              <p>Jika Android gagal booting ke sistem OS (hard bootloop), masuk ke bootloader/fastboot mode:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Fastboot Commands</span>
+                  <button class="btn-copy" data-code="fastboot devices">Salin</button>
+                </div>
+                <pre><code># Masuk ke bootloader dari ADB:
+adb reboot bootloader
+
+# Verifikasi koneksi fastboot:
+fastboot devices
+
+# Booting recovery image temporer tanpa flashing:
+fastboot boot twrp_recovery.img
+
+# Flash partisi boot standar untuk memulihkan kernel/stock:
+fastboot flash boot stock_boot.img
+
+# Reboot kembali ke sistem Android:
+fastboot reboot</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: MODULE 3 (TERMUX CUSTOMIZATION) -->
+        <section id="module-termux" class="content-section">
+          <div class="section-heading">
+            <h2>💻 Modul 3: Supercharge & Kustomisasi Termux via ADB</h2>
+            <p>Jadikan Android Anda lingkungan server Linux profesional tanpa menyentuh layar sentuh.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>1. Instalasi Termux Bersih & Setup Storage via ADB</h3>
+            </div>
+            <div class="card-body">
+              <p>Unduh build resmi Termux dari F-Droid / GitHub (bukan dari Play Store yang sudah usang), lalu pasang via ADB:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Sideload Termux & Permissions</span>
+                  <button class="btn-copy" data-code="adb install -r -g termux-app.apk">Salin</button>
+                </div>
+                <pre><code>adb install -r -g termux-app.apk
+
+# Berikan izin storage ke Termux melalui ADB Shell:
+adb shell pm grant com.termux android.permission.READ_EXTERNAL_STORAGE
+adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>2. Headless OpenSSH Server Setup dari Komputer</h3>
+            </div>
+            <div class="card-body">
+              <p>Anda dapat menginjeksi script setup ke Termux dari PC menggunakan perintah <code>am start</code> dengan data URI atau eksekusi RunCommand:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Injeksi Setup SSH via ADB Shell</span>
+                  <button class="btn-copy" data-code="adb shell input text 'pkg\ update\ -y\ \&\&\ pkg\ install\ openssh\ -y\ \&\&\ sshd'">Salin</button>
+                </div>
+                <pre><code># Buka Termux di layar Android:
+adb shell monkey -p com.termux -c android.intent.category.LAUNCHER 1
+
+# Kirim perintah otomatis ke terminal Termux:
+adb shell input text "pkg\ update\ -y\ \&\&\ pkg\ install\ openssh\ curl\ git\ -y\ \&\&\ passwd"
+adb shell input keyevent 66 # (Tekan Enter)
+
+# Jalankan daemon SSH di port 8022:
+adb shell input text "sshd"
+adb shell input keyevent 66</code></pre>
+              </div>
+              <p>Atau forward port 8022 Termux langsung ke port 8022 localhost PC via kabel USB:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Port Forwarding USB</span>
+                  <button class="btn-copy" data-code="adb forward tcp:8022 tcp:8022">Salin</button>
+                </div>
+                <pre><code>adb forward tcp:8022 tcp:8022
+# Sekarang Anda bisa SSH dari PC langsung ke:
+ssh -p 8022 u0_a234@localhost</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>3. Pasang Distribusi Lengkap Linux (proot-distro Debian/Ubuntu)</h3>
+            </div>
+            <div class="card-body">
+              <p>Jalankan ekosistem Linux lengkap di dalam Termux tanpa akses root:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Proot Distro Setup</span>
+                  <button class="btn-copy" data-code="pkg install proot-distro -y && proot-distro install debian">Salin</button>
+                </div>
+                <pre><code># Di dalam shell Termux:
+pkg install proot-distro -y
+proot-distro install debian
+proot-distro login debian
+
+# Di dalam Debian (Proot):
+apt update && apt install -y python3 python3-pip git build-essential htop</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: MODULE 4 (ORCHESTRATION WITH AGY) -->
+        <section id="module-orchestration" class="content-section">
+          <div class="section-heading">
+            <h2>🤖 Modul 4: Orkestrasi AI Agent (Google Antigravity)</h2>
+            <p>Membangun alur kerja otonom di mana AI Agent merencanakan, menguji, dan memodifikasi Android secara mandiri.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Konsep Agentic Loop dengan Antigravity CLI</h3>
+            </div>
+            <div class="card-body">
+              <div class="architecture-flow">
+                <div class="flow-step">
+                  <div class="flow-icon">🎯</div>
+                  <h4>Tujuan (Goal)</h4>
+                  <p>User mengetik goal: <em>"Audit keamanan HP, bersihkan telemetry, dan aktifkan SSH Termux"</em>.</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step">
+                  <div class="flow-icon">🔍</div>
+                  <h4>Reconnaissance</h4>
+                  <p>Agent menjalankan `adb getprop`, `pm list packages`, dan memeriksa status device.</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step highlight">
+                  <div class="flow-icon">⚡</div>
+                  <h4>Eksekusi Aksi</h4>
+                  <p>Agent mengeksekusi sub-task secara bertahap dan memvalidasi kode return (exit code 0).</p>
+                </div>
+                <div class="flow-arrow">&rarr;</div>
+                <div class="flow-step">
+                  <div class="flow-icon">✅</div>
+                  <h4>Laporan & Self-Fix</h4>
+                  <p>Jika ada error (misal package locked), agent mencoba fallback strategy.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Template Prompt Antigravity untuk Android Automation</h3>
+            </div>
+            <div class="card-body">
+              <p>Salin prompt berikut ke Google Antigravity CLI untuk menjalankan orkestrasi otomatis:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>AGY Prompt Recipe: Auto-Debloat & Optimization</span>
+                  <button class="btn-copy" data-code="Kamu adalah Android Engineer AI. Tugasmu:
+1. Hubungkan ke perangkat via `adb devices`. Pastikan statusnya 'device'.
+2. Baca brand dan tipe HP dengan `adb shell getprop ro.product.manufacturer` dan `ro.product.model`.
+3. Buat backup list aplikasi aktif: `adb shell pm list packages > current_packages.txt`.
+4. Identifikasi aplikasi telemetry/bloatware pabrikan dan nonaktifkan aman dengan `pm disable-user --user 0 <pkg>`.
+5. Laporkan setiap aksi dan pastikan sistem stabil.">Salin</button>
+                </div>
+                <pre><code>Kamu adalah Android Engineer AI. Tugasmu:
+1. Hubungkan ke perangkat via `adb devices`. Pastikan statusnya 'device'.
+2. Baca brand dan tipe HP dengan `adb shell getprop ro.product.manufacturer` dan `ro.product.model`.
+3. Buat backup list aplikasi aktif: `adb shell pm list packages > current_packages.txt`.
+4. Identifikasi aplikasi telemetry/bloatware pabrikan dan nonaktifkan aman dengan `pm disable-user --user 0 <pkg>`.
+5. Laporkan setiap aksi dan pastikan sistem stabil.</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Membuat Custom Tool / Rule untuk Antigravity</h3>
+            </div>
+            <div class="card-body">
+              <p>Anda dapat membuat rule di <code>.gemini/rules/android-mod.md</code> agar Antigravity selalu mematuhi safety precautions sebelum menjalankan perintah ADB berisiko:</p>
+              <div class="code-box">
+                <div class="code-header">
+                  <span>Markdown Rule for Antigravity</span>
+                  <button class="btn-copy" data-code="# Android Modding Safety Rule
+- Selalu verifikasi status `adb devices` sebelum menjalankan perintah shell.
+- Jangan pernah menghapus `com.android.systemui` atau package inti telephony.
+- Selalu sediakan perintah rollback saat mendisable paket (`cmd package install-existing`).
+- Catat timestamp logcat sebelum melakukan reboot.">Salin</button>
+                </div>
+                <pre><code># Android Modding Safety Rule
+- Selalu verifikasi status `adb devices` sebelum menjalankan perintah shell.
+- Jangan pernah menghapus `com.android.systemui` atau package inti telephony.
+- Selalu sediakan perintah rollback saat mendisable paket (`cmd package install-existing`).
+- Catat timestamp logcat sebelum melakukan reboot.</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: COMMAND GENERATOR -->
+        <section id="command-generator" class="content-section">
+          <div class="section-heading">
+            <h2>🎛️ Interactive ADB & Antigravity Command Generator</h2>
+            <p>Pilih skenario, masukkan parameter Anda, dan dapatkan perintah ADB siap pakai serta Prompt AI Agent.</p>
+          </div>
+
+          <div class="generator-container">
+            <div class="card">
+              <div class="card-header">
+                <h3>1. Pilih Kategori & Aksi</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="actionCategory">Kategori Operasi:</label>
+                  <select id="actionCategory" class="form-select">
+                    <option value="app_install">📦 Instalasi & Manajemen APK</option>
+                    <option value="debloat">🧹 Debloat & Penonaktifan Aplikasi</option>
+                    <option value="troubleshoot">🛠️ Troubleshooting & Safe Mode</option>
+                    <option value="termux">💻 Custom Termux & Headless SSH</option>
+                    <option value="diagnostics">🔍 Diagnostik Hardware & Sistem</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="subAction">Aksi Spesifik:</label>
+                  <select id="subAction" class="form-select">
+                    <!-- Populated dynamically by JS -->
+                  </select>
+                </div>
+
+                <div id="dynamicInputsContainer">
+                  <!-- Dynamic parameter inputs rendered here -->
+                </div>
+
+                <button id="btnGenerateCommand" class="btn btn-primary btn-block">Generate Perintah & Prompt</button>
+              </div>
+            </div>
+
+            <div class="card output-card">
+              <div class="card-header">
+                <h3>2. Hasil Perintah ADB</h3>
+                <button class="btn-copy" id="btnCopyGeneratedAdb">Salin ADB</button>
+              </div>
+              <div class="card-body">
+                <div class="code-box">
+                  <pre><code id="generatedAdbOutput"># Pilih opsi di sebelah kiri dan klik Generate</code></pre>
+                </div>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 8px;">Prompt Orkestrasi untuk Google Antigravity:</h4>
+                <div class="code-box prompt-box">
+                  <div class="code-header">
+                    <span>Prompt Agentic AI</span>
+                    <button class="btn-copy" id="btnCopyGeneratedPrompt">Salin Prompt</button>
+                  </div>
+                  <pre><code id="generatedPromptOutput">Pilih opsi di sebelah kiri untuk membuat prompt otomatisasi.</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: TERMINAL SIMULATOR -->
+        <section id="agent-simulator" class="content-section">
+          <div class="section-heading">
+            <h2>📟 Terminal Antigravity Orchestrator (Live Simulator)</h2>
+            <p>Simulasi interaktif alur eksekusi Google Antigravity CLI saat memodifikasi perangkat Android.</p>
+          </div>
+
+          <div class="simulator-wrapper">
+            <div class="terminal-window">
+              <div class="terminal-titlebar">
+                <div class="terminal-buttons">
+                  <span class="btn-circle red"></span>
+                  <span class="btn-circle yellow"></span>
+                  <span class="btn-circle green"></span>
+                </div>
+                <div class="terminal-title">antigravity-cli (agy) &bull; android-orchestrator</div>
+              </div>
+              <div class="terminal-body" id="terminalOutput">
+                <div class="term-line info">[AGY-AGENT] Initializing Antigravity Orchestrator v2.4...</div>
+                <div class="term-line success">[ADB-BRIDGE] Connected to USB bridge daemon: ADB version 1.0.41</div>
+                <div class="term-line text">Ketik instruksi di bawah atau klik salah satu skenario preset untuk melihat alur agen:</div>
+              </div>
+              <div class="terminal-input-bar">
+                <span class="prompt-symbol">agy-android &gt;</span>
+                <input type="text" id="terminalInput" placeholder="Ketik perintah (contoh: debloat miui, setup termux ssh, check battery)..." autocomplete="off">
+                <button id="btnSendTerminal" class="btn btn-small btn-primary">Kirim</button>
+              </div>
+            </div>
+
+            <div class="simulator-presets">
+              <h4>Skenario Preset Uji Coba:</h4>
+              <button class="preset-btn" data-preset="debloat">🧹 Debloat Rekomendasi (Facebook & Analytics)</button>
+              <button class="preset-btn" data-preset="termux_ssh">💻 Pasang & Aktifkan Termux SSH Port 8022</button>
+              <button class="preset-btn" data-preset="fix_bootloop">🛠️ Diagnosa Crash Logcat & Safe Reboot</button>
+              <button class="preset-btn" data-preset="battery_audit">🔋 Audit Kesehatan Baterai & Suhu Thermal</button>
+              <button class="preset-btn" data-preset="clear_term">🔄 Bersihkan Terminal</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- SECTION: QUICK CHEATSHEET -->
+        <section id="cheatsheet" class="content-section">
+          <div class="section-heading">
+            <h2>📑 Quick Cheatsheet ADB & Fastboot</h2>
+            <p>Daftar tabel referensi cepat perintah penting untuk sehari-hari.</p>
+          </div>
+
+          <div class="filter-controls">
+            <input type="text" id="tableFilterInput" placeholder="Cari dalam tabel (contoh: install, reboot, termux, logcat)..." class="form-input">
+          </div>
+
+          <div class="table-responsive">
+            <table class="cheat-table" id="cheatsheetTable">
+              <thead>
+                <tr>
+                  <th>Kategori</th>
+                  <th>Perintah (Command)</th>
+                  <th>Deskripsi & Fungsi</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge badge-info">Konektivitas</span></td>
+                  <td><code>adb devices -l</code></td>
+                  <td>Melihat daftar ponsel yang terhubung beserta model dan status otorisasi</td>
+                  <td><button class="btn-copy-sm" data-code="adb devices -l">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-info">Konektivitas</span></td>
+                  <td><code>adb tcpip 5555</code></td>
+                  <td>Beralih dari mode kabel USB ke Wireless Debugging port 5555</td>
+                  <td><button class="btn-copy-sm" data-code="adb tcpip 5555">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-primary">Aplikasi</span></td>
+                  <td><code>adb install -r -d -g file.apk</code></td>
+                  <td>Install APK, izinkan downgrade, dan berikan semua izin runtime</td>
+                  <td><button class="btn-copy-sm" data-code="adb install -r -d -g file.apk">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-primary">Aplikasi</span></td>
+                  <td><code>adb shell pm uninstall -k --user 0 &lt;pkg&gt;</code></td>
+                  <td>Hapus bloatware untuk pengguna saat ini (tanpa root)</td>
+                  <td><button class="btn-copy-sm" data-code="adb shell pm uninstall -k --user 0 com.example.app">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-primary">Aplikasi</span></td>
+                  <td><code>adb shell cmd package install-existing &lt;pkg&gt;</code></td>
+                  <td>Mengembalikan/restore aplikasi bawaan yang terhapus via user 0</td>
+                  <td><button class="btn-copy-sm" data-code="adb shell cmd package install-existing com.example.app">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-warning">Troubleshoot</span></td>
+                  <td><code>adb reboot safe-mode</code></td>
+                  <td>Reboot ponsel langsung ke Safe Mode untuk bypass app perusak</td>
+                  <td><button class="btn-copy-sm" data-code="adb reboot safe-mode">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-warning">Troubleshoot</span></td>
+                  <td><code>adb logcat -b crash -d</code></td>
+                  <td>Mengambil ringkasan crash/exception terakhir dari buffer logcat</td>
+                  <td><button class="btn-copy-sm" data-code="adb logcat -b crash -d">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-warning">Troubleshoot</span></td>
+                  <td><code>adb shell pm clear &lt;pkg&gt;</code></td>
+                  <td>Reset total data dan cache sebuah aplikasi yang menyebabkan error</td>
+                  <td><button class="btn-copy-sm" data-code="adb shell pm clear com.example.app">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-success">Termux</span></td>
+                  <td><code>adb forward tcp:8022 tcp:8022</code></td>
+                  <td>Meneruskan port 8022 Termux ke PC untuk akses SSH instan</td>
+                  <td><button class="btn-copy-sm" data-code="adb forward tcp:8022 tcp:8022">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-danger">Fastboot</span></td>
+                  <td><code>adb reboot bootloader</code></td>
+                  <td>Reboot ponsel dari sistem Android langsung ke Fastboot/Bootloader</td>
+                  <td><button class="btn-copy-sm" data-code="adb reboot bootloader">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-danger">Fastboot</span></td>
+                  <td><code>fastboot boot recovery.img</code></td>
+                  <td>Booting TWRP/OrangeFox recovery secara temporer tanpa mengubah partisi</td>
+                  <td><button class="btn-copy-sm" data-code="fastboot boot recovery.img">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-secondary">Hardware</span></td>
+                  <td><code>adb shell dumpsys battery</code></td>
+                  <td>Melihat status persentase, voltase, dan suhu sensor baterai</td>
+                  <td><button class="btn-copy-sm" data-code="adb shell dumpsys battery">Copy</button></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-secondary">Hardware</span></td>
+                  <td><code>adb shell wm density 420</code></td>
+                  <td>Mengubah DPI / resolusi kerapatan layar secara langsung</td>
+                  <td><button class="btn-copy-sm" data-code="adb shell wm density 420">Copy</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <p>&copy; 2026 <strong>AGY AndroidLab</strong>. Dibuat untuk pengembang, modder, dan antusias otomasi Android via AI Agent.</p>
+        <p>Orchestrated with <strong>Google Antigravity CLI</strong> &bull; Repositori: <a href="https://github.com/atzartech-prog/androidmodviaagycl" target="_blank">atzartech-prog/androidmodviaagycl</a></p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
